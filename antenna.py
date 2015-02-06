@@ -13,7 +13,10 @@ class Antenna:
         ])
         return self.location * rotation_matrix
 
-    def get_phase_difference(self, th):
+    def phase_at_angle(self, th):
         new_location = self.rotate(th)
-        return new_location[0,0]
+        phase = new_location[0,0]
+        # force phase to range from -pi to pi
+        normalised_phase = np.arctan2(np.sin(phase), np.cos(phase))
+        return normalised_phase
 
