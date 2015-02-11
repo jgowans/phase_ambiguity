@@ -4,9 +4,13 @@ import antenna_array
 import correlator
 import numpy as np
 import matplotlib.pyplot as plt
-arr = antenna_array.Array(3*np.pi)
-ref = arr.phase_at_angle(0)
-corr = correlator.Correlator(ref, arr)
+
+distances = np.linspace(0.5*np.pi, 5*np.pi, 30)
+
+for d in distances:
+    arr = antenna_array.Array(d)
+    ref = arr.phase_at_angle(0)
+    corr = correlator.Correlator(ref, arr)
 
 response = corr.all_directions(500)
 
