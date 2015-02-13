@@ -2,21 +2,28 @@ import numpy as np
 
 class Antenna:
     def __init__(self, x, y):
-        self.location = np.matrix([
-            [x, y]
+        self.x = x
+        self.y = y
+        self.location = np.array([
+            [x],
+            [y]
         ])
 
-    def rotate(self, th):
-        rotation_matrix = np.matrix([
-                [np.cos(th), -np.sin(th)],
-                [np.sin(th), np.cos(th)]
+    def rotated(self, phi):
+        rotation_matrix = np.array([
+                [np.cos(phi), -np.sin(phi)],
+                [np.sin(phi), np.cos(phi)]
         ])
-        return self.location * rotation_matrix
+        new_location = rotation_matrix.dot(self.location)
+        return Antenna(new_location[0,0], new_location[1,0])
 
-    def phase_at_angle(self, th):
-        new_location = self.rotate(th)
+    def rotated_distance(phi):
+        return self.rotated(phi).x
+
+    def phase_at_angle(self, phi):
+        new_location = self.rotate(phi)
         phase = new_location[0,0]
-        # force phase to range from -pi to pi
+        # force phase to range from -pi to pi. I sort of know how phiis works...
         normalised_phase = np.arctan2(np.sin(phase), np.cos(phase))
         return normalised_phase
 

@@ -5,6 +5,7 @@ import itertools
 class Array:
     def __init__(self, d):
         self.antennas = []
+        self.antennas.append(Antenna(0, 0))
         self.antennas.append(Antenna(d, 0))
         self.antennas.append(Antenna(-np.sqrt(d*d/2), +np.sqrt(d*d/2)))
         self.antennas.append(Antenna(-np.sqrt(d*d/2), -np.sqrt(d*d/2)))
@@ -35,6 +36,10 @@ class Array:
             phase_difference_between_two_antennas(pair[0], pair[1])
 
     def phase_difference_between_two_antennas_at_angle(antA, antB, phi):
-        """Implements antA.phase - antB.phase"""
-        antA.phase_at_angle(phi) - antB.phase_at_angle(phi)
+        """Implements antB.phase - antA.phase"""
+        antA_distance = antA.rotated(phi).x
+        antB_distance = antB.rotated(phi).x
+        delta_x = antB_distance - antB_distance
+        # force phase to range from -pi to pi. I sort of know how phiis works...
+        normalised_phase = np.arctan2(np.sin(delta_x), np.cos(delta_x))
 
