@@ -24,5 +24,13 @@ class AntennaTester(unittest.TestCase):
         self.assertAlmostEqual(rotated.x, 23.45)
         self.assertAlmostEqual(rotated.y, -12.34)
 
+    def test_phase_no_rotate(self):
+        # http://www.wolframalpha.com/input/?i=angle%28e^%28i*12.34%29%29
+        self.assertAlmostEqual(self.antenna.phase_at_angle(0), -0.22637061)
+
+    def test_phase_rotated(self):
+        # http://www.wolframalpha.com/input/?i=arg%28e^%28i*Re%28%2812.34%2B23.45i%29*e^%282i%29%29%29%29
+        self.assertAlmostEqual(self.antenna.phase_at_angle(2), -1.32553539)
+
 if __name__ == '__main__':
     unittest.main()

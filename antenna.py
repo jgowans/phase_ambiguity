@@ -21,10 +21,9 @@ class Antenna:
         return self.rotated(phi).x
 
     def phase_at_angle(self, phi):
-        new_location = self.rotate(phi)
-        phase = new_location[0,0]
+        new_phase = self.rotated(phi).x
         # force phase to range from -pi to pi. I sort of know how phiis works...
-        normalised_phase = np.arctan2(np.sin(phase), np.cos(phase))
+        normalised_phase = np.arctan2(np.sin(new_phase), np.cos(new_phase))
         return normalised_phase
 
 
