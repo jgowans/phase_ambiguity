@@ -1,7 +1,7 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
-from matplotlib import cm
+import matplotlib.colors
 from mpl_toolkits.mplot3d import Axes3D
 
 class DimensionMismatch(Exception):
@@ -23,7 +23,9 @@ class Plotter:
         plt.show()
 
     def colourmap(self):
+#        plt.pcolormesh(self.X, self.Y, self.Z, norm=matplotlib.colors.LogNorm())
         plt.pcolormesh(self.X, self.Y, self.Z)
+        plt.colorbar()
         plt.show()
 
 

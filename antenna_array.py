@@ -2,13 +2,19 @@ import numpy as np
 from antenna import Antenna
 import itertools
 
-class Array:
+class AntennaArray:
     def __init__(self, d):
         self.antennas = []
+        # "Circular" around a reference element
         self.antennas.append(Antenna(0, 0))
         self.antennas.append(Antenna(d, 0))
+#        self.antennas.append(Antenna(0, d))
+#        self.antennas.append(Antenna(-d, 0))
+#        self.antennas.append(Antenna(0, -d))
         self.antennas.append(Antenna(-np.sqrt(d**2/2), +np.sqrt(d**2/2)))
         self.antennas.append(Antenna(-np.sqrt(d**2/2), -np.sqrt(d**2/2)))
+#        self.antennas.append(Antenna(np.sqrt(d**2/2), np.sqrt(d**2/2)))
+#        self.antennas.append(Antenna(np.sqrt(d**2/2), -np.sqrt(d**2/2)))
 
     def phases_at_angle(self, phi):
         phases_of_elements = np.array([])
@@ -19,6 +25,9 @@ class Array:
     def __iter__(self):
         self.current = 0
         return self
+
+    def __len__(self):
+        return len(self.antennas)
 
     def next(self):
         if self.current >= len(self.antennas):

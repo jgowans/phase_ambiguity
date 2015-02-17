@@ -17,8 +17,8 @@ class Correlator:
         # to know how far away these vector are from each other.
         return np.linalg.norm(phase_differences)
 
-    def all_directions(self, points):
+    def many_directions(self, start_dir, end_dir, points):
         result = {}
-        for phi in np.linspace(-np.pi, np.pi, points):
+        for phi in np.linspace(start_dir, end_dir, points):
             result[phi] = self.single_direction(phi)
         return result
