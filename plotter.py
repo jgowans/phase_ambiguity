@@ -13,7 +13,7 @@ class Plotter:
             raise DimensionMismatch("Z's 1st dimension is not equal to x's length")
         if z_grid.shape[1] != len(y_domain):
             raise DimensionMismatch("Z's 2nd dimension is not equal to y's length")
-        self.X, self.Y = np.meshgrid(x_domain, y_domain)
+        self.X, self.Y = np.meshgrid(x_domain, y_domain, indexing="ij")
         self.Z = z_grid
 
     def surface(self):
