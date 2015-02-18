@@ -1,20 +1,43 @@
 import numpy as np
 from antenna import Antenna
 import itertools
+import json
 
 class AntennaArray:
-    def __init__(self, d):
-        self.antennas = []
+    def __init__(self, antennas):
+        self.antennas = antennas
         # "Circular" around a reference element
-        self.antennas.append(Antenna(0, 0))
-        self.antennas.append(Antenna(d, 0))
-#        self.antennas.append(Antenna(0, d))
-#        self.antennas.append(Antenna(-d, 0))
-#        self.antennas.append(Antenna(0, -d))
-        self.antennas.append(Antenna(-np.sqrt(d**2/2), +np.sqrt(d**2/2)))
-        self.antennas.append(Antenna(-np.sqrt(d**2/2), -np.sqrt(d**2/2)))
-#        self.antennas.append(Antenna(np.sqrt(d**2/2), np.sqrt(d**2/2)))
-#        self.antennas.append(Antenna(np.sqrt(d**2/2), -np.sqrt(d**2/2)))
+
+#        for el_idx, el_val in enumerate(self.antennas):
+#            print("Element: {e}. x: {x}, y: {y}".format(e=el_idx, x=el_val.x, y=el_val.y))
+
+    @classmethod
+    def mk_from_config(cls, d, array_geometry_file):
+        json_data = open(array_geometry_file).read()
+        array_geometry = json.loads(json_data)
+        antennas = []
+        for ant_geo in json_parsed:
+            antenna = Antenna(d * ant_geo['d'], 0)
+            antenna = antenna.rotated(np.radians(ant_geo['phi']))
+            antennas.append(antenna)
+        return cls(antennas)
+
+    @classmethod
+    def mk_circular(cls, d, num_elements):
+        antennas = []
+        arc_length_per_element = (2*np.pi)/num_elements
+        for el in range(0, num_elements):
+            antennas.append(Antenna(d,0).rotated(el * arc_length_per_element))
+        return cls(antennas)
+
+    @classmethod
+    def mk_circular_with_ref(cls, d, num_elements):
+        antennas = []
+        antennas.append(Antenna(0, 0))
+        arc_length_per_element = (2*np.pi)/(num_elements-1)
+        for el in range(0, num_elements-1):
+            antennas.append(Antenna(d,0).rotated(el * arc_length_per_element))
+        return cls(antennas)
 
     def phases_at_angle(self, phi):
         phases_of_elements = np.array([])
