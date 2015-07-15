@@ -12,13 +12,12 @@ class AntennaArray:
 #            print("Element: {e}. x: {x}, y: {y}".format(e=el_idx, x=el_val.x, y=el_val.y))
 
     @classmethod
-    def mk_from_config(cls, d, array_geometry_file):
+    def mk_from_config(cls, array_geometry_file):
         json_data = open(array_geometry_file).read()
         array_geometry = json.loads(json_data)
         antennas = []
-        for ant_geo in json_parsed:
-            antenna = Antenna(d * ant_geo['d'], 0)
-            antenna = antenna.rotated(np.radians(ant_geo['phi']))
+        for ant_geo in array_geometry:
+            antenna = Antenna(ant_geo['x'], ant_geo['y'])
             antennas.append(antenna)
         return cls(antennas)
 
@@ -63,7 +62,7 @@ class AntennaArray:
         for pair in pairs:
             yield pair
 
-    def each_pair_phase_difference_at_angle(self, phi):
+    def each_pair_phase_difference_at_angle(self, phi, f):
         phases_of_pairs = np.array([])
         for ant0, ant1 in self.each_pair():
             phases_of_pairs = np.append(
@@ -71,17 +70,18 @@ class AntennaArray:
                 self.phase_difference_between_two_antennas_at_angle(
                     ant0, 
                     ant1, 
-                    phi
+                    phi, 
+                    f
                 )
             )
         return phases_of_pairs
 
-    def phase_difference_between_two_antennas_at_angle(self, antA, antB, phi):
+    def phase_difference_between_two_antennas_at_angle(self, antA, antB, phi, f):
         """Implements antB.phase - antA.phase"""
-        antA_distance = antA.rotated(phi).x
-        antB_distance = antB.rotated(phi).x
-        delta_x = antB_distance - antA_distance
-        # force phase to range from -pi to pi. I sort of know how phiis works...
-        normalised_phase = np.arctan2(np.sin(delta_x), np.cos(delta_x))
+        antA_phase = antA.phase_at_angle(phi, f)
+        antB_phase = antB.phase_at_angle(phi, f)
+        delta_phase = antB_phase - antA_phase
+        # force phase to range from -pi to pi. I sort of know how this works...
+        normalised_phase = np.arctan2(np.sin(delta_phase), np.cos(delta_phase))
         return normalised_phase
 

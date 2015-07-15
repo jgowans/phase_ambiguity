@@ -7,9 +7,9 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description = "Run phase ambiguity simulations")
-parser.add_argument('--d_min', default=0.2, type=float)
-parser.add_argument('--d_max', default=7, type=float)
-parser.add_argument('--d_points', default=300, type=int)
+parser.add_argument('--f_min', default=100e6, type=float)
+parser.add_argument('--f_max', default=500e6, type=float)
+parser.add_argument('--f_points', default=300, type=int)
 parser.add_argument('--phi_min', default=-np.pi, type=float)
 parser.add_argument('--phi_max', default=np.pi, type=float)
 parser.add_argument('--phi_points', default=300, type=int)
@@ -22,21 +22,21 @@ args = parser.parse_args()
 print(args)
 
 # wavelengths seperation between elements and reference
-x_domain = np.linspace(args.d_min, args.d_max, args.d_points)
-Z = np.zeros((len(x_domain), args.phi_points))
+f_domain = np.linspace(args.f_min, args.f_max, args.f_points)
+Z = np.zeros((len(f_domain), args.phi_points))
 
-for x_idx, x_val in enumerate(x_domain):
+for f_idx, f_val in enumerate(f_domain):
     if args.array_geometry_file:
-        arr = AntennaArray.mk_from_config(x_val*2*np.pi, args.array_geometry_file)
+        arr = AntennaArray.mk_from_config(args.array_geometry_file)
     else:
-        arr = AntennaArray.mk_circular_with_ref(x_val*2*np.pi, args.elements)
-    ref = arr.each_pair_phase_difference_at_angle(args.ref_angle)
+        arr = AntennaArray.mk_circular_with_ref(1, args.elements)  # TODO: Don't fix d at 1 metre
+    ref = arr.each_pair_phase_difference_at_angle(args.ref_angle, f_val)
     corr = Correlator(ref, arr)
-    response = corr.many_directions(args.phi_min, args.phi_max, args.phi_points)
+    response = corr.many_directions(args.phi_min, args.phi_max, args.phi_points, f_val)
     y = response.keys()
     y.sort()
     for i_idx, i_val in enumerate(y):
-        Z[x_idx,i_idx] = response[i_val]
+        Z[f_idx,i_idx] = response[i_val]
 
-Plotter(x_domain, y, Z).colourmap()
+Plotter(f_domain, y, Z).colourmap()
 #plotter.Plotter(x_domain, y, Z).surface()
