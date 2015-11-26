@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from antenna_array import AntennaArray
+from directionFinder_backend import antenna_array
 from correlator import Correlator
 from plotter import Plotter
 import numpy as np
@@ -27,9 +27,9 @@ Z = np.zeros((len(f_domain), args.phi_points))
 
 for f_idx, f_val in enumerate(f_domain):
     if args.array_geometry_file:
-        arr = AntennaArray.mk_from_config(args.array_geometry_file)
+        arr = antenna_array.AntennaArray.mk_from_config(args.array_geometry_file)
     else:
-        arr = AntennaArray.mk_circular_with_ref(1, args.elements)  # TODO: Don't fix d at 1 metre
+        arr = antenna_array.AntennaArray.mk_circular_with_ref(1, args.elements)  # TODO: Don't fix d at 1 metre
     ref = arr.each_pair_phase_difference_at_angle(args.ref_angle, f_val)
     corr = Correlator(ref, arr)
     response = corr.many_directions(args.phi_min, args.phi_max, args.phi_points, f_val)
