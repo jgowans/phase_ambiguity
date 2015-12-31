@@ -7,7 +7,7 @@ import numpy as np
 import argparse
 
 parser = argparse.ArgumentParser(description = "Run phase ambiguity simulations")
-parser.add_argument('--f_min', default=100e6, type=float)
+parser.add_argument('--f_min', default=30e6, type=float)
 parser.add_argument('--f_max', default=500e6, type=float)
 parser.add_argument('--f_points', default=300, type=int)
 parser.add_argument('--phi_min', default=-np.pi, type=float)
@@ -18,7 +18,7 @@ parser.add_argument('--elements', default=4, type=int)
 parser.add_argument('--array_geometry_file', default=None)
 parser.add_argument('--surface_plot', action='store_true')
 parser.add_argument('--with_ref_element', type=bool, default=False)
-parser.add_argument('--radius', type=float, default=1.0)
+parser.add_argument('--radius', type=float, default=0.5)
 args = parser.parse_args()
 
 print(args)
