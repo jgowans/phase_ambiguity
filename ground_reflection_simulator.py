@@ -4,17 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.constants
 
-def generate_rho(psi):
-    """ Not really ranges. Lists of values to compute for.
-    If you have the edges, for a colourmesh:
-    edge = np.linspace(0, 100, 1000)
-    mid = [(edge[i+1]+edge[i])/2 for i in range(len(edge)-1)]
+def get_rho(omega, psi):
+    """ psi can be a list of psi values
     """
     #k = 15      # dielectric constant
     k = 5      # dielectric constant
     alpha = 10e-2   # conductivity
     alpha = 0.10   # conductivity
-    omega = 250e6 * 2*np.pi
     #omega = (scipy.constants.c / 0.09) * 2*np.pi
 
     chi = alpha/(omega*scipy.constants.epsilon_0)
@@ -48,6 +44,62 @@ def generate_d_h_rho_colourmesh():
     plt.pcolormesh(X, Y, np.abs(Z))
     plt.colorbar()
     plt.show()
+
+def generate_difference_plots():
+    delta_ab = 1.0 # difference in distance from Tx to RxA and Tx to RxB
+    f = 250e6  # Hz
+    wavelength = 1/f # meters
+    omega = 2*np.pi*f  # rads per second
+    
+    r_edges = np.linspace(5, 50, 1000, endpoint = False)
+    # plural because it's a list of r values
+    rs = np.array([(r_edges[i+1]+r_edges[i])/2 for i in range(len(r_edges)-1)])
+    ras = rs - (delta_ab / 2)
+    rbs = rs + (delta_ab / 2)
+    h_edges = np.linspace(0.1, 5, 200, endpoint = False)
+    hs = np.array([(h_edges[i+1]+h_edges[i])/2 for i in range(len(h_edges)-1)])
+    # an array of amplitude and phase differences as a result of only the direct beam
+    array_direct = np.ndarray((len(rs), len(hs)), dtype=np.complex128)
+    # an array of amplitude and phase differences as a result of direct plus reflectd
+    array_combined = np.ndarray((len(rs), len(hs)), dtype=np.complex128)
+    for r_idx in range(len(rs)):
+        for h_idx, h in enumerate(hs):
+            ra = ras[r_idx]
+            rb = rbs[r_idx]
+            direct_a = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * ra/wavelength)
+            direct_b = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * rb/wavelength)
+            direct_delta_phase = np.angle(direct_b) - np.angle(direct_b)
+            array_direct[r_idx][h_idx] = np.abs(direct_a) * np.exp(1j * direct_delta_phase)
+            theta_a = np.arctan2(h, ra)
+            theta_b = np.arctan2(h, rb)
+            ra_prime = 2 * np.sqrt(h**2 + (ra/2)**2)
+            rb_prime = 2 * np.sqrt(h**2 + (rb/2)**2)
+            reflected_a = (wavelength/(4*np.pi*ra_prime)) * np.exp(-1j * 2.0*np.pi * ra_prime/wavelength)
+            reflected_b = (wavelength/(4*np.pi*rb_prime)) * np.exp(-1j * 2.0*np.pi * rb_prime/wavelength)
+            # factor in beam:
+            reflected_a *= np.cos(theta_a)
+            reflected_b *= np.cos(theta_b)
+            # factor in ground reflection coefficient
+            ground_coefficient_a = get_rho(omega, theta_a)
+            ground_coefficient_b = get_rho(omega, theta_b)
+            reflected_a *= ground_coefficient_a
+            reflected_b *= ground_coefficient_b
+            combined_a = direct_a + reflected_a
+            combined_b = direct_b + reflected_b
+            combined_delta_phase = np.angle(combined_b) - np.angle(combined_a)
+            array_combined[r_idx][h_idx] = np.abs(combined_a) * np.exp(1j * combined_delta_phase)
+
+    array_change = array_combined / array_direct
+    Z = array_change
+    X, Y = np.meshgrid(r_edges, h_edges)
+    Z = Z.T
+    plt.pcolormesh(X, Y, np.angle(Z))
+    plt.colorbar()
+    plt.show()
+    plt.pcolormesh(X, Y, np.abs(Z))
+    plt.colorbar()
+    plt.show()
+
 
 def from_thomas():
     h=3   # source antenna height
