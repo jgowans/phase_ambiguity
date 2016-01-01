@@ -48,10 +48,10 @@ def generate_d_h_rho_colourmesh():
 def generate_difference_plots():
     delta_ab = 1.0 # difference in distance from Tx to RxA and Tx to RxB
     f = 250e6  # Hz
-    wavelength = 1/f # meters
+    wavelength = scipy.constants.c/f # meters
     omega = 2*np.pi*f  # rads per second
     
-    r_edges = np.linspace(5, 50, 1000, endpoint = False)
+    r_edges = np.linspace(5, 50, 600, endpoint = False)
     # plural because it's a list of r values
     rs = np.array([(r_edges[i+1]+r_edges[i])/2 for i in range(len(r_edges)-1)])
     ras = rs - (delta_ab / 2)
@@ -63,13 +63,14 @@ def generate_difference_plots():
     # an array of amplitude and phase differences as a result of direct plus reflectd
     array_combined = np.ndarray((len(rs), len(hs)), dtype=np.complex128)
     for r_idx in range(len(rs)):
+        ra = ras[r_idx]
+        rb = rbs[r_idx]
+        direct_a = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * ra/wavelength)
+        direct_b = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * rb/wavelength)
+        direct_delta_phase = np.angle(direct_b) - np.angle(direct_a)
+        array_direct_value = np.abs(direct_a) * np.exp(1j * direct_delta_phase)
         for h_idx, h in enumerate(hs):
-            ra = ras[r_idx]
-            rb = rbs[r_idx]
-            direct_a = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * ra/wavelength)
-            direct_b = (wavelength/(4*np.pi*ra)) * np.exp(-1j * 2.0*np.pi * rb/wavelength)
-            direct_delta_phase = np.angle(direct_b) - np.angle(direct_b)
-            array_direct[r_idx][h_idx] = np.abs(direct_a) * np.exp(1j * direct_delta_phase)
+            array_direct[r_idx][h_idx] = array_direct_value
             theta_a = np.arctan2(h, ra)
             theta_b = np.arctan2(h, rb)
             ra_prime = 2 * np.sqrt(h**2 + (ra/2)**2)
@@ -93,12 +94,51 @@ def generate_difference_plots():
     Z = array_change
     X, Y = np.meshgrid(r_edges, h_edges)
     Z = Z.T
-    plt.pcolormesh(X, Y, np.angle(Z))
+    fig1 = plt.figure(figsize=(14,5))
+    plt.pcolormesh(X, Y, np.angle(Z), linewidth=0,rasterized=True, cmap='bwr', vmin=-0.18, vmax=0.18)
+    plt.colorbar()
+    plt.grid(True)
+    plt.title("Phase difference in radians between ideal and two-ray model")
+    plt.ylabel("Height, h, of antennas above ground (metres)")
+    plt.xlabel("Distance, d, between antennas (metres)")
+    plt.show()
+    fig1 = plt.figure(figsize=(14,5))
+    plt.pcolormesh(X, Y, 20*np.log10(np.abs(Z)), linewidth=0,rasterized=True)
+    plt.colorbar()
+    plt.title("Amplitude difference in dB between ideal and two-ray model")
+    plt.ylabel("Height, h, of antennas above ground (metres)")
+    plt.xlabel("Distance, d, between Tx and Rx antennas (metres)")
+    plt.show()
+
+def generate_two_ray_vs_friis_plots():
+    delta_ab = 1.0 # difference in distance from Tx to RxA and Tx to RxB
+    f = 250e6  # Hz
+    wavelength = scipy.constants.c/f # meters
+    omega = 2*np.pi*f  # rads per second
+    
+    r_edges = np.linspace(5, 5000, 1000, endpoint = False)
+    # plural because it's a list of r values
+    rs = np.array([(r_edges[i+1]+r_edges[i])/2 for i in range(len(r_edges)-1)])
+    h_edges = np.linspace(0.1, 5, 200, endpoint = False)
+    hs = np.array([(h_edges[i+1]+h_edges[i])/2 for i in range(len(h_edges)-1)])
+    # an array of amplitude and phase differences as a result of only the direct beam
+    array_friis = np.ndarray((len(rs), len(hs)), dtype=np.float64)
+    # an array of amplitude and phase differences as a result of direct plus reflectd
+    array_two_ray = np.ndarray((len(rs), len(hs)), dtype=np.float64)
+    for r_idx, r in enumerate(rs):
+        friis_value = 20*np.log10(wavelength / (4*np.pi*r))
+        for h_idx, h in enumerate(hs):
+            array_friis[r_idx][h_idx] = friis_value
+            array_two_ray[r_idx][h_idx] = 10*np.log10(h**2 * h**2 / r**4)
+    # arrays are in power RECEIVED. So do smaller - larger (dB)  to get: smaller/larger (lin)
+    Z = array_two_ray - array_friis
+    X, Y = np.meshgrid(r_edges, h_edges)
+    Z = Z.T
+    plt.pcolormesh(X, Y, Z)
     plt.colorbar()
     plt.show()
-    plt.pcolormesh(X, Y, np.abs(Z))
-    plt.colorbar()
-    plt.show()
+
+
 
 
 def from_thomas():
