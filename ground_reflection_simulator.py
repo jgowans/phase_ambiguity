@@ -9,7 +9,7 @@ def get_rho(omega, psi):
     """
     #k = 15      # dielectric constant
     k = 5      # dielectric constant
-    alpha = 10e-2   # conductivity
+    #alpha = 10e-2   # conductivity
     alpha = 0.10   # conductivity
     #omega = (scipy.constants.c / 0.09) * 2*np.pi
 
@@ -96,18 +96,21 @@ def generate_difference_plots():
     Z = Z.T
     fig1 = plt.figure(figsize=(14,5))
     plt.pcolormesh(X, Y, np.angle(Z), linewidth=0,rasterized=True, cmap='bwr', vmin=-0.18, vmax=0.18)
-    plt.colorbar()
+    cb = plt.colorbar()
+    cb.set_label("Phase shift (rads)")
     plt.grid(True)
-    plt.title("Phase difference in radians between ideal and two-ray model")
+    plt.title("Phase difference between ideal and two-ray model due to ground reflection")
     plt.ylabel("Height, h, of antennas above ground (metres)")
     plt.xlabel("Distance, d, between antennas (metres)")
     plt.show()
     fig1 = plt.figure(figsize=(14,5))
     plt.pcolormesh(X, Y, 20*np.log10(np.abs(Z)), linewidth=0,rasterized=True)
-    plt.colorbar()
+    cb = plt.colorbar()
+    cb.set_label("Attenuation (dB)")
     plt.title("Amplitude difference in dB between ideal and two-ray model")
     plt.ylabel("Height, h, of antennas above ground (metres)")
     plt.xlabel("Distance, d, between Tx and Rx antennas (metres)")
+    plt.grid(True)
     plt.show()
 
 def generate_two_ray_vs_friis_plots():
@@ -207,3 +210,6 @@ def from_thomas():
     ax3.set_title('Elevation cut x=%5.0f m away. Source at %3.1f m' % (x[0,xx],h));
 
     plt.show()
+
+if __name__ == '__main__':
+    generate_difference_plots()
