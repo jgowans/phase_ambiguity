@@ -8,7 +8,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description = "Run phase ambiguity simulations")
 parser.add_argument('--f_min', default=30e6, type=float)
-parser.add_argument('--f_max', default=500e6, type=float)
+parser.add_argument('--f_max', default=400e6, type=float)
 parser.add_argument('--f_points', default=300, type=int)
 parser.add_argument('--phi_min', default=-np.pi, type=float)
 parser.add_argument('--phi_max', default=np.pi, type=float)
@@ -34,6 +34,8 @@ else:
         arr = antenna_array.AntennaArray.mk_circular_with_ref(args.radius, args.elements)
     else:
         arr = antenna_array.AntennaArray.mk_circular(args.radius, args.elements)
+for antenna in arr.antennas:
+    print("{x}, {y}".format(x =antenna.x, y = antenna.y))
 
 for f_idx, f_val in enumerate(f_domain):
     ref = arr.each_pair_phase_difference_at_angle(args.ref_angle, f_val)
@@ -42,7 +44,7 @@ for f_idx, f_val in enumerate(f_domain):
     y = response.keys()
     y.sort()
     for i_idx, i_val in enumerate(y):
-        Z[f_idx,i_idx] = response[i_val]
+        Z[f_idx,i_idx] = response[i_val] / np.sqrt(len(arr.antennas))
 
 Plotter(f_domain, y, Z).colourmap()
 #plotter.Plotter(x_domain, y, Z).surface()
