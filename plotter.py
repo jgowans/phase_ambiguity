@@ -27,15 +27,15 @@ class Plotter:
     def colourmap(self):
 #        plt.pcolormesh(self.X, self.Y, self.Z, norm=matplotlib.colors.LogNorm())
         fig, ax = plt.subplots()
-        #mesh = plt.pcolormesh(self.X, self.Y, self.Z, linewidth=0,rasterized=True, vmin=0, vmax=4, axes=ax)
-        mesh = plt.pcolormesh(self.X, self.Y, self.Z, linewidth=0,rasterized=True, axes=ax)
+        mesh = plt.pcolormesh(self.X, self.Y, self.Z, linewidth=0,rasterized=True, vmin=0, vmax=4, axes=ax)
+        #mesh = plt.pcolormesh(self.X, self.Y, self.Z, linewidth=0,rasterized=True, axes=ax)
         bar = plt.colorbar()
-        #bar.set_label("Difference (RMS radians)")
-        #ax.set_title("Ambiguity for N antenna circular array with R m radius")
-        #ax.set_xlabel("Frequency (MHz)")
-        #ax.set_ylabel("Comparison angle (radians)")
-        #ax.set_ylim(top=3.2, bottom=-3.2)
-        #ax.set_xlim(left=30)
+        bar.set_label("Difference (RMS radians)")
+        ax.set_title("Ambiguity for N antenna circular array with R m radius")
+        ax.set_xlabel("Frequency (MHz)")
+        ax.set_ylabel("Comparison angle (radians)")
+        ax.set_ylim(top=3.2, bottom=-3.2)
+        ax.set_xlim(left=30)
         plt.show()
 
 
