@@ -46,5 +46,5 @@ for f_idx, f_val in enumerate(f_domain):
     for i_idx, i_val in enumerate(y):
         Z[f_idx,i_idx] = response[i_val] / np.sqrt(len(arr.antennas))
 
-Plotter(f_domain, y, Z).colourmap()
+Plotter(f_domain/1e6, y, Z).colourmap()
 #plotter.Plotter(x_domain, y, Z).surface()
